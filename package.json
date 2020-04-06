@@ -1,0 +1,25 @@
+{
+  "name": "bitburner",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "npm run build-ts && npm run serve",
+    "serve": "node server.js",
+    "build-ts": "tsc",
+    "watch-ts": "tsc -w",
+    "watch": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"cyan.bold,green.bold\" \"npm run watch-ts\" \"npm run serve\""
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "concurrently": "^5.1.0",
+    "nodemon": "^2.0.2",
+    "ts-node": "^8.8.1",
+    "typescript": "^3.8.3"
+  }
+}
