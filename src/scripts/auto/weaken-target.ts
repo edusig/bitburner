@@ -2,5 +2,5 @@
 import { BitBurner } from 'bitburner';
 
 export async function main(ns: BitBurner) {
-  ns.weaken(ns.args[0]);
+  await ns.weaken(ns.args[0]);
 }

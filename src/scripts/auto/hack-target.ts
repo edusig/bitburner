@@ -2,5 +2,5 @@
 import { BitBurner } from 'bitburner';
 
 export async function main(ns: BitBurner) {
-  ns.hack(ns.args[0]);
+  await ns.hack(ns.args[0]);
 }

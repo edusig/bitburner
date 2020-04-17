@@ -37,6 +37,7 @@ export async function main(ns: BitBurner) {
           while (!hasRunDaemon) {
             ns.run('scripts-auto-daemon.js', 1, JSON.stringify(srv));
             hasRunDaemon = ns.isRunning('scripts-auto-daemon.js', hn, JSON.stringify(srv));
+            console.log('HAS RUN DAEMON', hn);
             await ns.sleep(500);
           }
           lastT = srv;

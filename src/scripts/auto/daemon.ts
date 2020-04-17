@@ -39,28 +39,32 @@ export async function main(ns: BitBurner) {
   let delay = { step: 7, w: 14, activation: 6, kill: 8 };
 
   let looping = true;
-  let srv: ServerInfo = JSON.parse(ns.args[0]);
+  let target: ServerInfo = JSON.parse(ns.args[0]);
   while (looping) {
     let hackLvl = ns.getHackingLevel();
-    let curSec = ns.getServerSecurityLevel(srv.host);
-    const srvRam = ns.getServerRam(srv.host);
+    let curSec = ns.getServerSecurityLevel(target.host);
+    const srvRam = ns.getServerRam(hn);
     const ramAvailable = (srvRam[0] = srvRam[1]);
-    if (Math.floor(curSec) > Math.floor(srv.minSec)) {
-      const weakenET = Math.round(ns.getWeakenTime(srv.host) * 1000) / 1000;
-      const threadsReq = Math.ceil((curSec - srv.minSec) / weakenTP);
+    if (Math.floor(curSec) > Math.floor(target.minSec)) {
+      const weakenET = Math.round(ns.getWeakenTime(target.host) * 1000) / 1000;
+      const threadsReq = Math.ceil((curSec - target.minSec) / weakenTP);
       const threadsUsed = Math.floor(ramAvailable / costs.weaken);
       if (threadsReq > 0 && threadsUsed > 0) {
-        ns.tprint(`[${hn}] Server ${srv.host} is being weakened...`);
-        ns.run('scripts-auto-weaken-target.js', threadsUsed, srv.host);
+        ns.tprint(
+          `[${hn}] Server ${target.host} is being weakened... [${threadsUsed} threads] | ETA: ${
+            weakenET + delay.activation + delay.kill
+          }s`
+        );
+        ns.run('scripts-auto-weaken-target.js', threadsUsed, target.host);
         await ns.sleep((weakenET + delay.activation + delay.kill) * 1000);
       }
     } else {
-      const adjustedGR = Math.min(1 + (unadjustedGR - 1) / srv.minSec, maxGR);
-      const srvGP = srv.growth / 100;
+      const adjustedGR = Math.min(1 + (unadjustedGR - 1) / target.minSec, maxGR);
+      const srvGP = target.growth / 100;
       let numServerGrowthCyclesAdjusted = srvGP * bitnodeGR * playerGrowMult;
       // let srvGrowth = Math.pow(adjustedGR, numServerGrowthCyclesAdjusted);
 
-      let neededToMaxInit = srv.maxMoney / Math.max(ns.getServerMoneyAvailable(srv.host), 1);
+      let neededToMaxInit = target.maxMoney / Math.max(ns.getServerMoneyAvailable(target.host), 1);
       let neededToMax = 1 / (1 - pctSteal);
 
       let CNTGrowInit = Math.log(neededToMaxInit) / Math.log(adjustedGR);
@@ -71,12 +75,12 @@ export async function main(ns: BitBurner) {
       let TNTGrow = Math.ceil(CNTGrow / numServerGrowthCyclesAdjusted);
       let totalGrowCost = TNTGrow * costs.grow;
 
-      let weakenET = Math.round(ns.getWeakenTime(srv.host) * 1000) / 1000;
-      let growET = Math.round(ns.getGrowTime(srv.host) * 1000) / 1000;
-      let hackET = Math.round(ns.getHackTime(srv.host) * 1000) / 1000;
+      let weakenET = Math.round(ns.getWeakenTime(target.host) * 1000) / 1000;
+      let growET = Math.round(ns.getGrowTime(target.host) * 1000) / 1000;
+      let hackET = Math.round(ns.getHackTime(target.host) * 1000) / 1000;
 
-      let diffMult = (100 - Math.min(100, srv.minSec)) / 100;
-      let skillMult = (hackLvl - (srv.hackReq - 1)) / hackLvl;
+      let diffMult = (100 - Math.min(100, target.minSec)) / 100;
+      let skillMult = (hackLvl - (target.hackReq - 1)) / hackLvl;
       let pctMoneyHacked = Math.min(1, Math.max(0, diffMult * skillMult * (player$Mult / 240)));
 
       let TNTHack = Math.floor(pctSteal / pctMoneyHacked);
@@ -110,17 +114,17 @@ export async function main(ns: BitBurner) {
       }
 
       if (TNTGrowInit > 0) {
-        ns.run('scripts-auto-grow-target.js', Math.floor(ramAvailable / costs.grow), srv.host);
-        ns.tprint(`[${hn}] Server ${srv.host} is being grown...`);
+        ns.run('scripts-auto-grow-target.js', Math.floor(ramAvailable / costs.grow), target.host);
+        ns.tprint(`[${hn}] Server ${target.host} is being grown...`);
         await ns.sleep((growET + delay.activation + delay.kill) * 1000);
       } else if (!skipHackDueToCycleImperfection) {
         ns.tprint(
-          `[${hn}] ${srv.host} --- Hack to ${pctToStealForDisplay}% x ${cyclesSupportedByRAM} cycles with a weaken execution time of ${weakenET}`
+          `[${hn}] ${target.host} --- Hack to ${pctToStealForDisplay}% x ${cyclesSupportedByRAM} cycles with a weaken execution time of ${weakenET}`
         );
         for (let i = 0; i < cyclesSupportedByRAM; i++) {
           let args = [
             JSON.stringify({
-              target: srv.host,
+              target: target.host,
               script: 'scripts-auto-hack-target.js',
               TNTWeaken: TNTWeakenForHack * cyclesSupportedByRAM,
               TNTRun: TNTHack,
@@ -128,7 +132,7 @@ export async function main(ns: BitBurner) {
               i,
             }),
             JSON.stringify({
-              target: srv.host,
+              target: target.host,
               script: 'scripts-auto-grow-target.js',
               TNTWeaken: TNTWeakenForGrow * cyclesSupportedByRAM,
               TNTRun: TNTGrow,

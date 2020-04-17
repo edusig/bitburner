@@ -15,8 +15,8 @@ export async function main(ns: BitBurner) {
   while (loop) {
     $ = ns.getServerMoneyAvailable('home');
     if (i >= maxServers) {
-      while ($ > ramPrice * ramToBuy * 4) {
-        ramToBuy = ramToBuy * 2;
+      while ($ > ramPrice * ramToBuy * 8) {
+        ramToBuy = ramToBuy * 4;
       }
       ns.print(`Buying player servers. Target: ${ramToBuy}GB RAM for ${ramPrice * ramToBuy}$`);
       i = 0;
