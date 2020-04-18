@@ -1,4 +1,4 @@
-// Upgraded/Modified version (to Netscript v2 with typescript) of https://github.com/auto/bitburner/blob/master/daemon.js
+// Upgraded/Modified version (to Netscript v2 with typescript) of https://github.com/moriakaice/bitburner/blob/master/daemon.js
 import { BitBurner, BitNodeMultipliers } from 'bitburner';
 import { ServerInfo } from 'lib-util-server-info.js';
 
@@ -44,7 +44,7 @@ export async function main(ns: BitBurner) {
     let hackLvl = ns.getHackingLevel();
     let curSec = ns.getServerSecurityLevel(target.host);
     const srvRam = ns.getServerRam(hn);
-    const ramAvailable = (srvRam[0] = srvRam[1]);
+    const ramAvailable = srvRam[0] - srvRam[1];
     if (Math.floor(curSec) > Math.floor(target.minSec)) {
       const weakenET = Math.round(ns.getWeakenTime(target.host) * 1000) / 1000;
       const threadsReq = Math.ceil((curSec - target.minSec) / weakenTP);
@@ -109,7 +109,7 @@ export async function main(ns: BitBurner) {
         ns.print(
           `[${hn}] Current percentage to steal of ${pctSteal} is too high for even 1 cycle. Adjusting for next run-loop.`
         );
-        pctSteal -= 0.1;
+        pctSteal -= 0.01;
         skipHackDueToCycleImperfection = true;
       }
 
